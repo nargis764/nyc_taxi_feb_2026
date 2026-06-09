@@ -3,7 +3,7 @@
 ## 📌 Project Overview
 This project provides an end-to-end exploratory and advanced data analysis of the **New York City Yellow Taxi dataset** for the month of February 2026. Utilizing **PostgreSQL**, this analysis extracts critical business insights regarding revenue optimization, spatial demand distribution, high-value customer behavior, and operational trends. 
 
-The goal of this repository is to demonstrate advanced SQL competency—specifically leveraging **Window Functions, Common Table Expressions (CTEs), Staging Layers (Temporary Tables), and Data Aggregations** to solve complex analytics questions.
+The goal of this repository is to demonstrate advanced SQL competency by leveraging **Window Functions, Common Table Expressions (CTEs), Staging Layers (Temporary Tables), and Data Aggregations** to solve complex analytics questions.
 
 ---
 
