@@ -1,41 +1,58 @@
 # NYC Yellow Taxi Analytics (February 2026)
 
-## 📌 Project Overview
-This project provides an end-to-end exploratory and advanced data analysis of the **New York City Yellow Taxi dataset** for the month of February 2026. Utilizing **PostgreSQL**, this analysis extracts critical business insights regarding revenue optimization, spatial demand distribution, high-value customer behavior, and operational trends. 
+📌 Project Overview
 
-The goal of this repository is to demonstrate advanced SQL competency by leveraging **Window Functions, Common Table Expressions (CTEs), Staging Layers (Temporary Tables), and Data Aggregations** to solve complex analytics questions.
+This project presents an end-to-end analysis of the New York City Yellow Taxi dataset for February 2026 using PostgreSQL. The analysis focuses on identifying key revenue drivers, understanding geographic and temporal demand patterns, investigating high-value trips, and uncovering customer payment behaviors.
 
----
+Through a combination of exploratory data analysis (EDA) and advanced SQL techniques, the project transforms raw trip records into actionable business insights. Key findings include the impact of airport-related travel on revenue generation, the characteristics of high-value trips, and the effect of external events such as severe weather on taxi demand.
 
-## 🛠️ Tech Stack & Architecture
-* **Language:** SQL (PostgreSQL Dialect)
-* **Interface:** pgAdmin 4
-* **Database Management:** Custom Schemas (`ny_taxi`), Explicit Type Casting, Session Isolation
-* **Concepts Demonstrated:** * Advanced Window Functions (`RANK()`, `PERCENT_RANK()`, `NTILE()`, `LAG()`)
-  * Multi-layered Common Table Expressions (CTEs)
-  * Data Transformation & Moving Averages (`ROWS BETWEEN`)
-  * Staging Performance Management via Temporary Tables
+The primary objective of this project is to demonstrate practical SQL skills commonly used in analytics roles, including data cleaning, aggregation, segmentation, trend analysis, and business-oriented reporting.
 
----
+**SQL Concepts Demonstrated:**
+- Aggregations and Grouping
+- Multi-table Joins
+- Common Table Expressions (CTEs)
+- Temporary Tables for intermediate analysis
+- Window Functions (`RANK()`, `PERCENT_RANK()`, `NTILE()`, `LAG()`)
+- Running Totals and Trend Analysis
+- 7-Day Rolling Revenue Analysis using Window Frames (`ROWS BETWEEN`)
+- Revenue Segmentation and Customer Behavior Analysis
+- Data Quality Investigation and Validation
+
 
 ## 📈 Key Insights & Business Findings
 
 ### 1. High-Level Performance Metrics
-* **Total Trip Volume:** 3,399,866 trips completed.
-* **Gross Revenue:** $102,381,021.74 generated in February 2026.
-* **Average Trip Efficiency:** 6.24 miles per single trip.
+* **Total Trip Volume**: 3.4 million taxi trips were completed during February 2026.
+* **Total Revenue**: Taxi operations generated over $102.4 million in revenue.
+* **Average Trip Distance**: The average trip covered 6.24 miles.
+* **Busiest Pickup Zones**: Upper East Side South, Upper East Side North, Midtown Center, and JFK Airport each recorded more than 100,000 pickups, making them the most active pickup locations in the city.
 
-### 2. Spatial Revenue Concentrations (Borough Analysis)
-Manhattan remains the primary economic engine of transit, capturing the overwhelming majority of market share. However, analyzing the *revenue per trip* reveals distinct consumer patterns:
-* **Manhattan** leads in absolute volume and total gross revenue.
-* **Airports / Out-of-Borough** trips generate substantially higher individual ticket averages (`revenue_per_trip`), identifying them as premium operational zones.
+### 2. Revenue Distribution Across NYC
+Analysis of revenue by borough highlights the concentration of taxi activity within Manhattan.
 
-### 3. High-Value Elite Trips (Top 5% Threshold)
-By isolating the top 5% of trips using `PERCENT_RANK()`, data reveals:
-* **Airport Affinity:** While airport-related trips represent a minor percentage of overall citywide volume, they account for a disproportionately massive chunk of the **Top 5% Highest-Value Trips**.
-* **Financial Profile:** Top-tier trips are characterized by high average distances, premium fare baselines, and significantly higher tip percentages compared to local residential transit.
+Manhattan generated the highest trip volume and total revenue, reinforcing its role as the city's primary transportation hub.
+While **airport-related** and **out-of-borough** trips accounted for a smaller share of total trips, they generated substantially higher revenue per trip, making them some of the most valuable routes in the dataset.
 
----
+### 3. Characteristics of High-Value Trips
+Using PERCENT_RANK(), the top 5% highest-value trips were identified and analyzed.
+
+Airport-related trips represented only a small portion of overall trip volume but accounted for a disproportionately large share of the highest-value trips.
+High-value trips were generally associated with longer travel distances, higher fare amounts, and larger tip contributions compared to typical city trips.
+Airport trips accounted for only **7.3% of all trips**, yet represented **77.6% of trips within the top 5% revenue segment**, highlighting their importance as a key revenue driver.
+
+### 4. Payment Behavior and Tipping Patterns:
+Analysis of payment methods revealed notable differences in tipping behavior. 
+
+* Credit card transactions recorded an average tip rate of 25.3% of the fare amount.
+* Cash transactions showed almost no recorded tips in the dataset.
+* This difference is likely influenced by the way tips are captured in NYC TLC records, where credit card tips are recorded electronically while cash tips may not always be reflected in the trip data.
+
+### 5. Operational and Temporal Insights:
+Day-over-day revenue analysis identified a significant drop in trips and revenue on February 23, 2026.
+Further investigation showed that the decline was consistent across vendors and hours of the day, suggesting an external event rather than a data-quality issue.
+External research confirmed that a severe winter storm affected New York City on that date, providing a likely explanation for the temporary reduction in taxi demand.
+Analysis of hourly demand patterns showed that peak revenue hours did not always align with peak trip-volume hours, indicating that trip profitability varies throughout the day.
 
 ## 🗂️ SQL Query Catalog & Implementation
 
