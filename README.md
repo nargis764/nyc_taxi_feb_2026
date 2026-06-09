@@ -113,11 +113,12 @@ airport_trips: Built an indexed subset table grouping trips beginning or ending 
 top_revenue_zones: Staged data specifically for the Top 20 revenue-generating zones to run route combination optimizations.
 
 📂 Repository File Guide
+
 /sql_scripts/01_schema_setup.sql: Complete DDL blueprint initialization.
 
 /sql_scripts/02_exploratory_analysis.sql: Production script housing all 20 advanced query structures.
 
 /query_outputs/: Directory containing CSV files representing structural results for cross-validation.
 
-Analysis compiled and engineered by a Professional Data Analyst.
+
 
