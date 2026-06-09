@@ -1,6 +1,6 @@
 # NYC Yellow Taxi Analytics (February 2026)
 
-📌 Project Overview
+📌 **Project Overview**
 
 This project presents an end-to-end analysis of the New York City Yellow Taxi dataset for February 2026 using PostgreSQL. The analysis focuses on identifying key revenue drivers, understanding geographic and temporal demand patterns, investigating high-value trips, and uncovering customer payment behaviors.
 
@@ -56,11 +56,11 @@ Analysis of hourly demand patterns showed that peak revenue hours did not always
 
 ## 🗂️ SQL Query Catalog & Implementation
 
-### Phase 1: Basic Analysis & Aggregations
-The foundational queries focus on core business indicators: total metrics, average volumes, and basic frequency tracking.
+### Phase 1: Exploratory Analysis & Aggregations
+The initial analysis focuses on understanding overall trip activity, revenue generation, rider behavior, and geographic demand patterns.
 
-* **Top 10 Pickup Zones by Volume:** Upper East Side South, Upper East Side North, Midtown Center, and JFK Airport lead the city in density.
-* **Tipping Behavior by Payment Type:** Analyzed tip percentages dynamically utilizing zero-denominator prevention (`NULLIF`):
+* **Top 10 Pickup Zones by Volume:** Identified the busiest pickup locations across New York City based on trip counts. Upper East Side South, Upper East Side North, Midtown Center, and JFK Airport recorded the highest number of pickups during the analysis period.
+* **Tipping Behavior by Payment Type:** Compared average tip percentages across payment methods while preventing division-by-zero errors using NULLIF().
 ```sql
 SELECT payment_method, 100 * AVG(tip_amount/NULLIF(fare_amount, 0)) AS avg_tip_percentage
 FROM (
@@ -74,10 +74,12 @@ FROM (
 ) sub
 GROUP BY payment_method;
 ```
-### Phase 2: Advanced Window Functions & Analytics
-Demonstrating advanced analytical capabilities via windowing mechanisms to build rolling transformations and growth tracking.
+
+### Phase 2: Window Functions & Time-Series Analysis
+Window functions were used to analyze revenue trends, cumulative performance, and daily fluctuations over time.
+
 **A. Daily Running Revenue Total**
-Tracks cumulative financial intake day-over-day across the target month.
+Calculates cumulative revenue throughout the month to visualize how total revenue accumulates over time.
 
 ```
 WITH day_revenue AS (
@@ -91,7 +93,7 @@ FROM day_revenue;
 ```
 
 **B. 7-Day Rolling Revenue Moving Average**
-Smooths out intra-week volatility (weekend spikes vs. weekday drops) to observe structural trends:
+Uses a 7-day moving average to smooth short-term fluctuations and highlight underlying revenue trends.
 ```
 WITH day_revenue AS (
     SELECT CAST(tpep_pickup_datetime AS DATE) as day_daily, SUM(total_amount) AS total_daily_revenue
@@ -104,7 +106,7 @@ FROM day_revenue;
 ```
 
 **C. Day-over-Day Revenue Growth Rate**
-Utilizes LAG() to assess relative growth vectors compared directly against the preceding calendar date:
+Uses LAG() to compare each day's revenue against the previous day and calculate percentage growth.
 
 ```
 WITH revenue_by_date AS (
@@ -122,14 +124,19 @@ SELECT date, current_day_revenue, previous_day_revenue,
 FROM revenue_delta;
 ```
 
-💾 Staging Optimization (Temporary Tables)
-To ensure optimal performance for complex downstream operations, isolated optimization tables were structured via CTAS commands:
+### Temporary Tables for Intermediate Analysis
 
-airport_trips: Built an indexed subset table grouping trips beginning or ending inside designated Airport zones to run hyper-focused transit metrics without table scans.
+Temporary tables were created to simplify repeated analysis and reduce the need for complex joins in downstream queries.
 
-top_revenue_zones: Staged data specifically for the Top 20 revenue-generating zones to run route combination optimizations.
+**airport_trips**
 
-📂 Repository File Guide
+Contains trips where either the pickup zone or dropoff zone is associated with an airport (JFK, LaGuardia, or Newark). This table was used to analyze airport-related demand, revenue contribution, and trip characteristics.
+
+**top_revenue_zones**
+
+Contains trips originating from the top 20 revenue-generating pickup zones. This table was used for route analysis, hourly demand analysis, and revenue-per-trip comparisons across high-performing areas.
+
+### Repository File Guide
 
 /sql_scripts/01_schema_setup.sql: Complete DDL blueprint initialization.
 
