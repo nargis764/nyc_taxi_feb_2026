@@ -341,8 +341,6 @@ SELECT
 FROM ranked_trips
 GROUP BY trip_groups
 
-WHERE percentile_bucket = 20
-ORDER BY total_amount DESC;
 
 WITH ranked_trips AS (
     SELECT      
@@ -364,8 +362,7 @@ FROM ranked_trips
 WHERE percentile_rank >= 0.95 
 GROUP BY location
 
-AND (pickup_zone LIKE '%Airport%' OR dropoff_zone LIKE '%Airport%')
-GROUP BY pickup_zone, dropoff_zone
+
 -- Peak pickup hours by borough.
 
 -- Percentage of Airport trips among all trips
@@ -380,9 +377,66 @@ SELECT COUNT(*) AS trip_counts_locationwise,
 	   ROUND(100*COUNT(*)/SUM(COUNT(*)) OVER(),2) AS percentage_trip_counts,
  CASE WHEN pickup_zone LIKE '%Airport%' OR dropoff_zone LIKE '%Airport%' THEN 'Airports'
       ELSE 'Other zones'
- END AS locations	  
+ END AS trip_category	  
 FROM all_zones
-GROUP BY locations
+GROUP BY trip_category
 
 
+-- Percentage of Revenue for Airport trips among all trips
+WITH all_zones AS (
+SELECT pick_up_zone.zone AS pickup_zone, 
+       drop_off_zone.zone AS dropoff_zone,
+	   total_amount
+FROM yellow_taxi_trips
+JOIN taxi_zone_lookup pick_up_zone ON pick_up_zone.locationid = yellow_taxi_trips.pulocationid
+JOIN taxi_zone_lookup drop_off_zone ON drop_off_zone.locationid = yellow_taxi_trips.dolocationid
+)
+SELECT SUM(total_amount) AS total_revenue_by_trip,
+       SUM(SUM(total_amount)) OVER() AS total_revenue,
+	   ROUND(100*SUM(total_amount)/SUM(SUM(total_amount)) OVER(),2) AS percentage_revenue,
+ CASE WHEN pickup_zone LIKE '%Airport%' OR dropoff_zone LIKE '%Airport%' THEN 'Airports'
+      ELSE 'Other zones'
+ END AS trip_category	  
+FROM all_zones
+GROUP BY trip_category
 
+
+-- Revenue per trips comparison zonewise and hourwise
+WITH all_zones AS (
+SELECT pick_up_zone.zone AS pickup_zone, 
+       drop_off_zone.zone AS dropoff_zone,
+	   EXTRACT(HOUR FROM tpep_pickup_datetime) AS pickup_hour,
+	   total_amount
+FROM yellow_taxi_trips
+JOIN taxi_zone_lookup pick_up_zone ON pick_up_zone.locationid = yellow_taxi_trips.pulocationid
+JOIN taxi_zone_lookup drop_off_zone ON drop_off_zone.locationid = yellow_taxi_trips.dolocationid
+)
+SELECT  pickup_hour,	   
+        CASE WHEN pickup_zone LIKE '%Airport%' OR dropoff_zone LIKE '%Airport%' THEN 'Airports'
+           ELSE 'Other zones'
+        END AS trip_category,	 
+        COUNT(*) AS trip_counts_per_category,       
+       SUM(total_amount) AS total_revenue_by_trip,       
+	   ROUND(SUM(total_amount)/COUNT(*),2) AS revenue_per_trip  
+FROM all_zones
+GROUP BY trip_category, pickup_hour
+ORDER BY pickup_hour, trip_category
+
+-- Revenue share percentage comparison zonewise and hourwise
+WITH all_zones AS (
+SELECT pick_up_zone.zone AS pickup_zone, 
+       drop_off_zone.zone AS dropoff_zone,
+	   EXTRACT(HOUR FROM tpep_pickup_datetime) AS pickup_hour,
+	   total_amount
+FROM yellow_taxi_trips
+JOIN taxi_zone_lookup pick_up_zone ON pick_up_zone.locationid = yellow_taxi_trips.pulocationid
+JOIN taxi_zone_lookup drop_off_zone ON drop_off_zone.locationid = yellow_taxi_trips.dolocationid
+)
+SELECT  pickup_hour,	   
+        CASE WHEN pickup_zone LIKE '%Airport%' OR dropoff_zone LIKE '%Airport%' THEN 'Airports'
+           ELSE 'Other zones'
+        END AS trip_category,   
+	   ROUND(100*SUM(total_amount)/(SUM(SUM(total_amount)) OVER(PARTITION BY pickup_hour)),2) AS revenue_share_pct  
+FROM all_zones
+GROUP BY trip_category, pickup_hour
+ORDER BY pickup_hour, trip_category
